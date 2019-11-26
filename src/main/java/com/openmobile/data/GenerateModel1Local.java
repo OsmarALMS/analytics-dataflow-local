@@ -42,7 +42,13 @@ public class GenerateModel1Local {
 			public void processElement(@Element String element, OutputReceiver<OpenMobile> receiver) {
 				OpenMobile[] openMobileArray = new Gson().fromJson(element, OpenMobile[].class);
 				for (OpenMobile openMobile : openMobileArray) {
-					if(openMobile.getParameters() != null && openMobile.getParameters().getStart_time() != null) {
+					//Validade required fields
+					if((openMobile.getParameters() != null && openMobile.getParameters().getStart_time() != null) &&
+					   (openMobile.getDevice_properties() != null && openMobile.getDevice_properties().getDevice_info() != null 
+					   		&& openMobile.getDevice_properties().getDevice_info().getManufacturer() != null 
+					   		&& openMobile.getDevice_properties().getDevice_info().getModel() != null) &&
+					   (openMobile.getType() != null)) {
+					
 						receiver.output(openMobile);
 					}
 				}

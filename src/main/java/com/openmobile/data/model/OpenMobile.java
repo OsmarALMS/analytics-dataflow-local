@@ -27,6 +27,30 @@ public class OpenMobile implements Serializable{
 		public void setStart_time(String start_time) {
 			this.start_time = start_time;
 		}
+		
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((start_time == null) ? 0 : start_time.hashCode());
+			return result;
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Parameters other = (Parameters) obj;
+			if (start_time == null) {
+				if (other.start_time != null)
+					return false;
+			} else if (!start_time.equals(other.start_time))
+				return false;
+			return true;
+		}
 	}
 	
 	@JsonIgnoreProperties(ignoreUnknown = true)
@@ -45,6 +69,7 @@ public class OpenMobile implements Serializable{
 			
 			private String model;
 			private String manufacturer;
+			
 			public String getModel() {
 				return model;
 			}
@@ -56,6 +81,36 @@ public class OpenMobile implements Serializable{
 			}
 			public void setManufacturer(String manufacturer) {
 				this.manufacturer = manufacturer;
+			}
+			
+			@Override
+			public int hashCode() {
+				final int prime = 31;
+				int result = 1;
+				result = prime * result + ((manufacturer == null) ? 0 : manufacturer.hashCode());
+				result = prime * result + ((model == null) ? 0 : model.hashCode());
+				return result;
+			}
+			@Override
+			public boolean equals(Object obj) {
+				if (this == obj)
+					return true;
+				if (obj == null)
+					return false;
+				if (getClass() != obj.getClass())
+					return false;
+				DeviceInfo other = (DeviceInfo) obj;
+				if (manufacturer == null) {
+					if (other.manufacturer != null)
+						return false;
+				} else if (!manufacturer.equals(other.manufacturer))
+					return false;
+				if (model == null) {
+					if (other.model != null)
+						return false;
+				} else if (!model.equals(other.model))
+					return false;
+				return true;
 			}
 		}
 		
@@ -77,6 +132,36 @@ public class OpenMobile implements Serializable{
 			}
 			public void setLongitude(String longitude) {
 				this.longitude = longitude;
+			}
+			
+			@Override
+			public int hashCode() {
+				final int prime = 31;
+				int result = 1;
+				result = prime * result + ((latitude == null) ? 0 : latitude.hashCode());
+				result = prime * result + ((longitude == null) ? 0 : longitude.hashCode());
+				return result;
+			}
+			@Override
+			public boolean equals(Object obj) {
+				if (this == obj)
+					return true;
+				if (obj == null)
+					return false;
+				if (getClass() != obj.getClass())
+					return false;
+				Location other = (Location) obj;
+				if (latitude == null) {
+					if (other.latitude != null)
+						return false;
+				} else if (!latitude.equals(other.latitude))
+					return false;
+				if (longitude == null) {
+					if (other.longitude != null)
+						return false;
+				} else if (!longitude.equals(other.longitude))
+					return false;
+				return true;
 			}
 		}
 
@@ -118,6 +203,55 @@ public class OpenMobile implements Serializable{
 
 		public void setCountry_code(String country_code) {
 			this.country_code = country_code;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((country_code == null) ? 0 : country_code.hashCode());
+			result = prime * result + ((device_info == null) ? 0 : device_info.hashCode());
+			result = prime * result + ((location == null) ? 0 : location.hashCode());
+			result = prime * result + ((os_version == null) ? 0 : os_version.hashCode());
+			result = prime * result + ((registration_id == null) ? 0 : registration_id.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			DeviceProperties other = (DeviceProperties) obj;
+			if (country_code == null) {
+				if (other.country_code != null)
+					return false;
+			} else if (!country_code.equals(other.country_code))
+				return false;
+			if (device_info == null) {
+				if (other.device_info != null)
+					return false;
+			} else if (!device_info.equals(other.device_info))
+				return false;
+			if (location == null) {
+				if (other.location != null)
+					return false;
+			} else if (!location.equals(other.location))
+				return false;
+			if (os_version == null) {
+				if (other.os_version != null)
+					return false;
+			} else if (!os_version.equals(other.os_version))
+				return false;
+			if (registration_id == null) {
+				if (other.registration_id != null)
+					return false;
+			} else if (!registration_id.equals(other.registration_id))
+				return false;
+			return true;
 		}
 	}
 	
@@ -168,6 +302,61 @@ public class OpenMobile implements Serializable{
 		public void setError(String error) {
 			this.error = error;
 		}
+		
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((context_results == null) ? 0 : context_results.hashCode());
+			result = prime * result + ((error == null) ? 0 : error.hashCode());
+			result = prime * result + ((packet_loss == null) ? 0 : packet_loss.hashCode());
+			result = prime * result + ((packets_sent == null) ? 0 : packets_sent.hashCode());
+			result = prime * result + ((results == null) ? 0 : results.hashCode());
+			result = prime * result + ((target == null) ? 0 : target.hashCode());
+			return result;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Values other = (Values) obj;
+			if (context_results == null) {
+				if (other.context_results != null)
+					return false;
+			} else if (!context_results.equals(other.context_results))
+				return false;
+			if (error == null) {
+				if (other.error != null)
+					return false;
+			} else if (!error.equals(other.error))
+				return false;
+			if (packet_loss == null) {
+				if (other.packet_loss != null)
+					return false;
+			} else if (!packet_loss.equals(other.packet_loss))
+				return false;
+			if (packets_sent == null) {
+				if (other.packets_sent != null)
+					return false;
+			} else if (!packets_sent.equals(other.packets_sent))
+				return false;
+			if (results == null) {
+				if (other.results != null)
+					return false;
+			} else if (!results.equals(other.results))
+				return false;
+			if (target == null) {
+				if (other.target != null)
+					return false;
+			} else if (!target.equals(other.target))
+				return false;
+			return true;
+		}
 	}
 	
 	public String getType() {
@@ -207,4 +396,57 @@ public class OpenMobile implements Serializable{
 		this.parameters = parameters;
 	}
 	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((device_properties == null) ? 0 : device_properties.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((parameters == null) ? 0 : parameters.hashCode());
+		result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + ((values == null) ? 0 : values.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		OpenMobile other = (OpenMobile) obj;
+		if (device_properties == null) {
+			if (other.device_properties != null)
+				return false;
+		} else if (!device_properties.equals(other.device_properties))
+			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		if (parameters == null) {
+			if (other.parameters != null)
+				return false;
+		} else if (!parameters.equals(other.parameters))
+			return false;
+		if (timestamp == null) {
+			if (other.timestamp != null)
+				return false;
+		} else if (!timestamp.equals(other.timestamp))
+			return false;
+		if (type == null) {
+			if (other.type != null)
+				return false;
+		} else if (!type.equals(other.type))
+			return false;
+		if (values == null) {
+			if (other.values != null)
+				return false;
+		} else if (!values.equals(other.values))
+			return false;
+		return true;
+	}
 }
