@@ -1,0 +1,110 @@
+package com.opendata.zurich.model;
+
+import java.io.Serializable;
+
+public class BreakPointStop implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	public BreakPointStop(Long breakpointId, String latitude, String longitude, String stopShortCode,
+			String stationDescription) {
+		super();
+		this.breakpointId = breakpointId;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.stopShortCode = stopShortCode;
+		this.stationDescription = stationDescription;
+	}
+
+	private Long breakpointId;
+	private String latitude;
+	private String longitude;
+	private String stopShortCode;
+	private String stationDescription;
+
+	public Long getBreakpointId() {
+		return breakpointId;
+	}
+	public void setBreakpointId(Long breakpointId) {
+		this.breakpointId = breakpointId;
+	}
+	public String getLatitude() {
+		return latitude;
+	}
+	public void setLatitude(String latitude) {
+		this.latitude = latitude;
+	}
+	public String getLongitude() {
+		return longitude;
+	}
+	public void setLongitude(String longitude) {
+		this.longitude = longitude;
+	}
+	public String getStopShortCode() {
+		return stopShortCode;
+	}
+	public void setStopShortCode(String stopShortCode) {
+		this.stopShortCode = stopShortCode;
+	}
+	public String getStationDescription() {
+		return stationDescription;
+	}
+	public void setStationDescription(String stationDescription) {
+		this.stationDescription = stationDescription;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((breakpointId == null) ? 0 : breakpointId.hashCode());
+		result = prime * result + ((latitude == null) ? 0 : latitude.hashCode());
+		result = prime * result + ((longitude == null) ? 0 : longitude.hashCode());
+		result = prime * result + ((stationDescription == null) ? 0 : stationDescription.hashCode());
+		result = prime * result + ((stopShortCode == null) ? 0 : stopShortCode.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BreakPointStop other = (BreakPointStop) obj;
+		if (breakpointId == null) {
+			if (other.breakpointId != null)
+				return false;
+		} else if (!breakpointId.equals(other.breakpointId))
+			return false;
+		if (latitude == null) {
+			if (other.latitude != null)
+				return false;
+		} else if (!latitude.equals(other.latitude))
+			return false;
+		if (longitude == null) {
+			if (other.longitude != null)
+				return false;
+		} else if (!longitude.equals(other.longitude))
+			return false;
+		if (stationDescription == null) {
+			if (other.stationDescription != null)
+				return false;
+		} else if (!stationDescription.equals(other.stationDescription))
+			return false;
+		if (stopShortCode == null) {
+			if (other.stopShortCode != null)
+				return false;
+		} else if (!stopShortCode.equals(other.stopShortCode))
+			return false;
+		return true;
+	}
+
+	public String toCsv() {
+		return this.breakpointId + "," +
+				this.latitude + "," +
+				this.longitude + "," +
+				this.stopShortCode + "," +
+				this.stationDescription.replace(",", "-");
+	}
+}
