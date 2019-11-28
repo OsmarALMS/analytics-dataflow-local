@@ -1,0 +1,8 @@
+java -jar analytics-dataflow-model1.jar \
+--runner=DataflowRunner \
+--project=celfocus-vfpt-poc-analytics \
+--jobName=openmobile-MODEL-1 \
+--tempLocation=gs://vfpt_poc_analytics/tmp/ \
+--inputFile=gs://vfpt_poc_analytics/openmobiledata/ \
+--dirs=2012 \
+--output=gs://vfpt_poc_analytics/openmobiledata-model1/

@@ -1,0 +1,9 @@
+imestamp=$(date +%s)
+
+java -jar analytics-dataflow-type-model.jar \
+--runner=DataflowRunner \
+--project=celfocus-vfpt-poc-analytics \
+--jobName=openmobile-TypeModel \
+--tempLocation=gs://vfpt_poc_analytics/tmp/ \
+--inputFile=gs://vfpt_poc_analytics/openmobiledata/*.zip \
+--output=gs://vfpt_poc_analytics/output/DataFlow/openmobile-TypeModel/$timestamp

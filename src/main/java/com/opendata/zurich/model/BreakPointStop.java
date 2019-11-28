@@ -101,10 +101,10 @@ public class BreakPointStop implements Serializable {
 	}
 
 	public String toCsv() {
-		return this.breakpointId + "," +
-				this.latitude + "," +
-				this.longitude + "," +
-				this.stopShortCode + "," +
-				this.stationDescription.replace(",", "-");
+		return this.breakpointId + ";" +
+				this.latitude + ";" +
+				this.longitude + ";" +
+				this.stopShortCode + ";" +
+				this.stationDescription;
 	}
 }

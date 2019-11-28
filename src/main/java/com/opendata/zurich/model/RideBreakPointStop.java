@@ -2,16 +2,21 @@ package com.opendata.zurich.model;
 
 import java.io.Serializable;
 
-public class RideBreakPointStop implements Serializable {
+import com.google.gson.Gson;
+
+public class RideBreakPointStop implements Serializable, Comparable<RideBreakPointStop>{
 	private static final long serialVersionUID = 1L;
 
-	public RideBreakPointStop(String operationDate, Long vehicleNumber, Long courseNumber, Long sequenceStop,
+	public RideBreakPointStop() {}
+	
+	public RideBreakPointStop(Long rideId, String operationDate, Long vehicleNumber, Long courseNumber, Long sequenceStop,
 			Long stopIdFrom, String stopCodeFrom, String dtStopFrom, Long timeStopFromTarget, Long timeStopFromReal,
 			Long stopIdAfter, String stopCodeAfter, String dtStopAfter, Long timeStopAfterTarget,
-			Long timeStopAfterReal, Long rideId, Long breakpointIdFrom, String fromLatitude, String fromLongitude,
+			Long timeStopAfterReal, Long breakpointIdFrom, String fromLatitude, String fromLongitude,
 			String fromStopShortCode, String fromStationDescription, Long breakpointIdAfter, String afterLatitude,
 			String afterLongitude, String afterStopShortCode, String afterStationDescription) {
 		super();
+		this.rideId = rideId;
 		this.operationDate = operationDate;
 		this.vehicleNumber = vehicleNumber;
 		this.courseNumber = courseNumber;
@@ -26,7 +31,6 @@ public class RideBreakPointStop implements Serializable {
 		this.dtStopAfter = dtStopAfter;
 		this.timeStopAfterTarget = timeStopAfterTarget;
 		this.timeStopAfterReal = timeStopAfterReal;
-		this.rideId = rideId;
 		this.breakpointIdFrom = breakpointIdFrom;
 		this.fromLatitude = fromLatitude;
 		this.fromLongitude = fromLongitude;
@@ -39,6 +43,7 @@ public class RideBreakPointStop implements Serializable {
 		this.afterStationDescription = afterStationDescription;
 	}
 
+	private Long rideId;
 	private String operationDate;
 	private Long vehicleNumber;
 	private Long courseNumber;
@@ -53,7 +58,6 @@ public class RideBreakPointStop implements Serializable {
 	private String dtStopAfter;
 	private Long timeStopAfterTarget;
 	private Long timeStopAfterReal;
-	private Long rideId;
 	private Long breakpointIdFrom;
 	private String fromLatitude;
 	private String fromLongitude;
@@ -64,6 +68,8 @@ public class RideBreakPointStop implements Serializable {
 	private String afterLongitude;
 	private String afterStopShortCode;
 	private String afterStationDescription;
+	private GeoJsonMultiple geoJson;
+	
 	public String getOperationDate() {
 		return operationDate;
 	}
@@ -213,6 +219,12 @@ public class RideBreakPointStop implements Serializable {
 	}
 	public void setAfterStationDescription(String afterStationDescription) {
 		this.afterStationDescription = afterStationDescription;
+	}
+	public GeoJsonMultiple getGeoJson() {
+		return geoJson;
+	}
+	public void setGeoJson(GeoJsonMultiple geoJson) {
+		this.geoJson = geoJson;
 	}
 
 	@Override
@@ -384,30 +396,40 @@ public class RideBreakPointStop implements Serializable {
 	}
 
 	public String toCsv() {
-		return this.rideId + "," +
-				this.operationDate + "," +
-				this.vehicleNumber + "," +
-				this.courseNumber + "," +
-				this.sequenceStop + "," +
-				this.stopIdFrom + "," +
-				this.stopCodeFrom + "," +
-				this.dtStopFrom + "," +
-				this.timeStopFromTarget + "," +
-				this.timeStopFromReal + "," +
-				this.stopIdAfter + "," +
-				this.stopCodeAfter + "," +
-				this.dtStopAfter + "," +
-				this.timeStopAfterTarget + "," +
-				this.timeStopAfterReal + "," +
-				this.breakpointIdFrom + "," +
-				this.fromLatitude + "," +
-				this.fromLongitude + "," +
-				this.fromStopShortCode + "," +
-				this.fromStationDescription.replace(",", "-") + "," +
-				this.breakpointIdAfter + "," +
-				this.afterLatitude + "," +
-				this.afterLongitude + "," +
-				this.afterStopShortCode + "," +
-				this.afterStationDescription.replace(",", "-");
+		return this.rideId + ";" +
+				this.operationDate + ";" +
+				this.vehicleNumber + ";" +
+				this.courseNumber + ";" +
+				this.sequenceStop + ";" +
+				this.stopIdFrom + ";" +
+				this.stopCodeFrom + ";" +
+				this.dtStopFrom + ";" +
+				this.timeStopFromTarget + ";" +
+				this.timeStopFromReal + ";" +
+				this.stopIdAfter + ";" +
+				this.stopCodeAfter + ";" +
+				this.dtStopAfter + ";" +
+				this.timeStopAfterTarget + ";" +
+				this.timeStopAfterReal + ";" +
+				this.breakpointIdFrom + ";" +
+				this.fromLatitude + ";" +
+				this.fromLongitude + ";" +
+				this.fromStopShortCode + ";" +
+				this.fromStationDescription + ";" +
+				this.breakpointIdAfter + ";" +
+				this.afterLatitude + ";" +
+				this.afterLongitude + ";" +
+				this.afterStopShortCode + ";" +
+				this.afterStationDescription + ";" +
+				new Gson().toJson(this.geoJson);
 	}
+	
+	@Override
+	public int compareTo(RideBreakPointStop r) {
+		if (getSequenceStop() == null || r.getSequenceStop() == null) {
+			return 0;
+	    }
+		return getSequenceStop().compareTo(r.getSequenceStop());
+	}
+	
 }

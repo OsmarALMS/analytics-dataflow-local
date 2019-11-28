@@ -1,0 +1,7 @@
+java -jar analytics-dataflow-generate-user.dataset.jar \
+--runner=DataflowRunner \
+--project=celfocus-vfpt-poc-analytics \
+--jobName=openmobile-Gen-UserDataSet \
+--tempLocation=gs://vfpt_poc_analytics/tmp/ \
+--inputFile=gs://vfpt_poc_analytics/openmobiledata/*.zip \
+--output=gs://vfpt_poc_analytics/user-openmobiledata/

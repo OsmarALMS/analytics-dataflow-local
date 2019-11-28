@@ -1,5 +1,6 @@
 package com.opendata.zurich;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,6 +20,7 @@ import org.apache.beam.sdk.values.TupleTag;
 import org.apache.beam.vendor.guava.v20_0.com.google.common.collect.Lists;
 
 import com.opendata.zurich.model.BreakPointStop;
+import com.opendata.zurich.model.GeoJsonMultiple;
 import com.opendata.zurich.model.Ride;
 import com.opendata.zurich.model.RideBreakPointStop;
 
@@ -73,7 +75,7 @@ public class DenormalizedProcessRide {
 					@ProcessElement
 					public void processElement(ProcessContext c) { 
 						if(!c.element().trim().isEmpty()) {
-							List<String> lineContent = Arrays.asList(c.element().split(","));
+							List<String> lineContent = Arrays.asList(c.element().split(";"));
 							BreakPointStop breakPointStop = 
 									new BreakPointStop(Long.parseLong(lineContent.get(0)), 
 											lineContent.get(1), lineContent.get(2), 
@@ -106,23 +108,23 @@ public class DenormalizedProcessRide {
 										if(Lists.newArrayList(e.getValue().getAll(breakPointStopFromTag)).size() > 0) {
 											BreakPointStop breakPointStopFrom = Lists.newArrayList(e.getValue().getAll(breakPointStopFromTag)).get(0);
 											RideBreakPointStop rideBreakPointStop = 
-													new RideBreakPointStop(ride.getOperationDate(), ride.getVehicleNumber(),
+													new RideBreakPointStop(ride.getRideId(), ride.getOperationDate(), ride.getVehicleNumber(),
 															ride.getCourseNumber(), ride.getSequenceStop(), ride.getStopIdFrom(), 
 															ride.getStopCodeFrom(), ride.getDtStopFrom(), ride.getTimeStopFromTarget(), 
 															ride.getTimeStopFromReal(), ride.getStopIdAfter(), ride.getStopCodeAfter(), 
 															ride.getDtStopAfter(), ride.getTimeStopAfterTarget(), ride.getTimeStopAfterReal(), 
-															ride.getRideId(), ride.getBreakpointIdFrom(), breakPointStopFrom.getLatitude(), 
+															ride.getBreakpointIdFrom(), breakPointStopFrom.getLatitude(), 
 															breakPointStopFrom.getLongitude(), breakPointStopFrom.getStopShortCode(), 
 															breakPointStopFrom.getStationDescription(), ride.getBreakpointIdAfter(), "", "", "", "");
 											c.output(KV.of(ride.getBreakpointIdAfter(), rideBreakPointStop));
 										}else {
 											RideBreakPointStop rideBreakPointStop = 
-													new RideBreakPointStop(ride.getOperationDate(), ride.getVehicleNumber(),
+													new RideBreakPointStop(ride.getRideId(), ride.getOperationDate(), ride.getVehicleNumber(),
 															ride.getCourseNumber(), ride.getSequenceStop(), ride.getStopIdFrom(), 
 															ride.getStopCodeFrom(), ride.getDtStopFrom(), ride.getTimeStopFromTarget(), 
 															ride.getTimeStopFromReal(), ride.getStopIdAfter(), ride.getStopCodeAfter(), 
 															ride.getDtStopAfter(), ride.getTimeStopAfterTarget(), ride.getTimeStopAfterReal(), 
-															ride.getRideId(), ride.getBreakpointIdFrom(), "", "", "", "", 
+															ride.getBreakpointIdFrom(), "", "", "", "", 
 															ride.getBreakpointIdAfter(), "", "", "", "");
 											c.output(KV.of(ride.getBreakpointIdAfter(), rideBreakPointStop));
 										}
@@ -152,33 +154,41 @@ public class DenormalizedProcessRide {
 								KV<Long, CoGbkResult> e = c.element();
 								if(Lists.newArrayList(e.getValue().getAll(rideAfterTag)).size() > 0) {
 									for(RideBreakPointStop ride : Lists.newArrayList(e.getValue().getAll(rideAfterTag))) {
+										RideBreakPointStop rideBreakPointStop = null;
 										if(Lists.newArrayList(e.getValue().getAll(breakPointStopAfterTag)).size() > 0) {
 											BreakPointStop breakPointStopAfter = Lists.newArrayList(e.getValue().getAll(breakPointStopAfterTag)).get(0);
-											RideBreakPointStop rideBreakPointStop = 
-													new RideBreakPointStop(ride.getOperationDate(), ride.getVehicleNumber(),
+											rideBreakPointStop = 
+													new RideBreakPointStop(ride.getRideId(), ride.getOperationDate(), ride.getVehicleNumber(),
 															ride.getCourseNumber(), ride.getSequenceStop(), ride.getStopIdFrom(), 
 															ride.getStopCodeFrom(), ride.getDtStopFrom(), ride.getTimeStopFromTarget(), 
 															ride.getTimeStopFromReal(), ride.getStopIdAfter(), ride.getStopCodeAfter(), 
 															ride.getDtStopAfter(), ride.getTimeStopAfterTarget(), ride.getTimeStopAfterReal(), 
-															ride.getRideId(), ride.getBreakpointIdFrom(), ride.getFromLatitude(),
+															ride.getBreakpointIdFrom(), ride.getFromLatitude(),
 															ride.getFromLongitude(), ride.getFromStopShortCode(), 
 															ride.getFromStationDescription(), breakPointStopAfter.getBreakpointId(), 
 															breakPointStopAfter.getLatitude(), breakPointStopAfter.getLongitude(), 
 															breakPointStopAfter.getStopShortCode(), breakPointStopAfter.getStationDescription());
-											c.output(rideBreakPointStop.toCsv());
 										}else {
-											RideBreakPointStop rideBreakPointStop = 
-													new RideBreakPointStop(ride.getOperationDate(), ride.getVehicleNumber(),
+											rideBreakPointStop = 
+													new RideBreakPointStop(ride.getRideId(), ride.getOperationDate(), ride.getVehicleNumber(),
 															ride.getCourseNumber(), ride.getSequenceStop(), ride.getStopIdFrom(), 
 															ride.getStopCodeFrom(), ride.getDtStopFrom(), ride.getTimeStopFromTarget(), 
 															ride.getTimeStopFromReal(), ride.getStopIdAfter(), ride.getStopCodeAfter(), 
 															ride.getDtStopAfter(), ride.getTimeStopAfterTarget(), ride.getTimeStopAfterReal(), 
-															ride.getRideId(), ride.getBreakpointIdFrom(), ride.getFromLatitude(),
+															ride.getBreakpointIdFrom(), ride.getFromLatitude(),
 															ride.getFromLongitude(), ride.getFromStopShortCode(), 
 															ride.getFromStationDescription(), ride.getBreakpointIdAfter(), 
 															"", "", "", "");
-											c.output(rideBreakPointStop.toCsv());
 										}
+										
+										List<String> cFrom = Arrays.asList(new String[]{rideBreakPointStop.getFromLatitude(), rideBreakPointStop.getFromLongitude()});
+										List<String> cTo = Arrays.asList(new String[]{rideBreakPointStop.getAfterLatitude(), rideBreakPointStop.getAfterLongitude()});
+										List<List<String>> geoCoordinates = new ArrayList<List<String>>();
+										geoCoordinates.add(cFrom);
+										geoCoordinates.add(cTo);
+										
+										rideBreakPointStop.setGeoJson(new GeoJsonMultiple("LineString", geoCoordinates));
+										c.output(rideBreakPointStop.toCsv()); 
 									}
 								}
 							}
