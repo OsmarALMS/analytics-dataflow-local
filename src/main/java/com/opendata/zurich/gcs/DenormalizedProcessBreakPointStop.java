@@ -1,4 +1,4 @@
-package com.opendata.zurich;
+package com.opendata.zurich.gcs;
 
 import java.util.Arrays;
 import java.util.List;

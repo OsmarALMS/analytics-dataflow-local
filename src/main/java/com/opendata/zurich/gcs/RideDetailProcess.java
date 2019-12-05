@@ -1,5 +1,6 @@
-package com.opendata.zurich;
+package com.opendata.zurich.gcs;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -59,8 +60,16 @@ public class RideDetailProcess {
 							lineContent.get(18), 					//stopShortCode-FROM
 							lineContent.get(19));					//stationDescription-FROM
 					
-					List<String> cFrom = Arrays.asList(new String[]{rideDetailFrom.getLatitude(), rideDetailFrom.getLongitude()});
-					rideDetailFrom.setGeoJson(new GeoJsonSingle("Point", cFrom));
+					BigDecimal latFrom = (rideDetailFrom.getLatitude() != null && !rideDetailFrom.getLatitude().equals("")) ?
+							new BigDecimal(rideDetailFrom.getLatitude()) : new BigDecimal(0);
+					BigDecimal longFrom = (rideDetailFrom.getLongitude() != null && !rideDetailFrom.getLongitude().equals("")) ?
+							new BigDecimal(rideDetailFrom.getLongitude()) : new BigDecimal(0);
+					List<BigDecimal> cFrom = Arrays.asList(new BigDecimal[]{latFrom, longFrom});
+					
+					GeoJsonSingle geoJsonFrom = new GeoJsonSingle();
+					geoJsonFrom.setGeometry("Point", cFrom);
+					rideDetailFrom.setGeoJson(geoJsonFrom);
+					
 					receiver.output(rideDetailFrom.toCsv());
 					
 					//After
@@ -80,8 +89,16 @@ public class RideDetailProcess {
 							lineContent.get(23), 					//stopShortCode-AFTER
 							lineContent.get(24));					//stationDescription-AFTER
 					
-					List<String> cAfter = Arrays.asList(new String[]{rideDetailAfter.getLatitude(), rideDetailAfter.getLongitude()});
-					rideDetailAfter.setGeoJson(new GeoJsonSingle("Point", cAfter));
+					BigDecimal latAfter = (rideDetailAfter.getLatitude() != null && !rideDetailAfter.getLatitude().equals("")) ?
+						new BigDecimal(rideDetailAfter.getLatitude()) : new BigDecimal(0);
+					BigDecimal longAfter = (rideDetailAfter.getLongitude() != null && !rideDetailAfter.getLongitude().equals("")) ?
+						new BigDecimal(rideDetailAfter.getLongitude()) : new BigDecimal(0);
+					List<BigDecimal> cAfter = Arrays.asList(new BigDecimal[]{latAfter, longAfter});
+					
+					GeoJsonSingle geoJsonAfter = new GeoJsonSingle();
+					geoJsonAfter.setGeometry("Point", cAfter);
+					rideDetailAfter.setGeoJson(geoJsonAfter);
+					
 					receiver.output(rideDetailAfter.toCsv());
 				}
 			}

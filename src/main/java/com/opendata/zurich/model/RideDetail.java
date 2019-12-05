@@ -2,6 +2,7 @@ package com.opendata.zurich.model;
 
 import java.io.Serializable;
 
+import com.google.api.services.bigquery.model.TableRow;
 import com.google.gson.Gson;
 
 public class RideDetail implements Serializable {
@@ -252,6 +253,24 @@ public class RideDetail implements Serializable {
 				this.stopShortCode + ";" +
 				this.stationDescription + ";" +
 				new Gson().toJson(this.geoJson);
+	}
+	
+	public TableRow toTableRow() {
+		return new TableRow().set("rideId", this.rideId)
+				.set("type", this.type)
+				.set("vehicleNumber", this.vehicleNumber)
+				.set("courseNumber", this.courseNumber)
+				.set("sequenceStop", this.sequenceStop)
+				.set("stopId", this.stopId)
+				.set("stopCode", this.stopCode)
+				.set("dtStop", this.dtStop)
+				.set("timeStopReal", this.timeStopReal)
+				.set("breakpointId", this.breakpointId)
+				.set("latitude", this.latitude)
+				.set("longitude", this.longitude)
+				.set("stopShortCode", this.stopShortCode)
+				.set("stationDescription", this.stationDescription)
+				.set("geojson", new Gson().toJson(this.geoJson));
 	}
 	
 }

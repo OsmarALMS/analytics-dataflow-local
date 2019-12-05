@@ -2,6 +2,7 @@ package com.opendata.zurich.model;
 
 import java.io.Serializable;
 
+import com.google.api.services.bigquery.model.TableRow;
 import com.google.gson.Gson;
 
 public class RideBreakPointStop implements Serializable, Comparable<RideBreakPointStop>{
@@ -424,6 +425,35 @@ public class RideBreakPointStop implements Serializable, Comparable<RideBreakPoi
 				new Gson().toJson(this.geoJson);
 	}
 	
+	public TableRow toTableRow() {
+		return new TableRow().set("rideId", this.rideId)
+				.set("operationDate", this.operationDate)
+				.set("vehicleNumber", this.vehicleNumber)
+				.set("courseNumber", this.courseNumber)
+				.set("sequenceStop", this.sequenceStop)
+				.set("stopIdFrom", this.stopIdFrom)
+				.set("stopCodeFrom", this.stopCodeFrom)
+				.set("dtStopFrom", this.dtStopFrom)
+				.set("timeStopFromTarget", this.timeStopFromTarget)
+				.set("timeStopFromReal", this.timeStopFromReal)
+				.set("stopIdAfter", this.stopIdAfter)
+				.set("stopCodeAfter", this.stopCodeAfter)
+				.set("dtStopAfter", this.dtStopAfter)
+				.set("timeStopAfterTarget", this.timeStopAfterTarget)
+				.set("timeStopAfterReal", this.timeStopAfterReal)
+				.set("breakpointIdFrom", this.breakpointIdFrom)
+				.set("fromLatitude", this.fromLatitude)
+				.set("fromLongitude", this.fromLongitude)
+				.set("fromStopShortCode", this.fromStopShortCode)
+				.set("fromStationDescription", this.fromStationDescription)
+				.set("breakpointIdAfter", this.breakpointIdAfter)
+				.set("afterLatitude", this.afterLatitude)
+				.set("afterLongitude", this.afterLongitude)
+				.set("afterStopShortCode", this.afterStopShortCode)
+				.set("afterStationDescription", this.afterStationDescription)
+				.set("geojson", new Gson().toJson(this.geoJson));
+	}
+	
 	@Override
 	public int compareTo(RideBreakPointStop r) {
 		if (getSequenceStop() == null || r.getSequenceStop() == null) {
@@ -431,5 +461,4 @@ public class RideBreakPointStop implements Serializable, Comparable<RideBreakPoi
 	    }
 		return getSequenceStop().compareTo(r.getSequenceStop());
 	}
-	
 }

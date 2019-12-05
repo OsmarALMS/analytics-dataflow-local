@@ -1,13 +1,14 @@
-package com.opendata.zurich;
+package com.opendata.zurich.bigquery;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.beam.runners.direct.DirectRunner;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.TextIO;
-import org.apache.beam.sdk.options.PipelineOptions;
+import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
+import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO.Write.CreateDisposition;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
@@ -19,35 +20,40 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.TupleTag;
 import org.apache.beam.vendor.guava.v20_0.com.google.common.collect.Lists;
 
+import com.google.api.services.bigquery.model.TableFieldSchema;
+import com.google.api.services.bigquery.model.TableReference;
+import com.google.api.services.bigquery.model.TableRow;
+import com.google.api.services.bigquery.model.TableSchema;
 import com.opendata.zurich.model.BreakPointStop;
 import com.opendata.zurich.model.GeoJsonMultiple;
 import com.opendata.zurich.model.Ride;
 import com.opendata.zurich.model.RideBreakPointStop;
+import com.opendata.zurich.options.BigQueryEventsOptions;
 
 /**
+ * POC Analytics
+ * 
  * Process to create a Denormalized table from Zurich Travel Dalyes (Ride - BreakPointStop)
  * https://data.stadt-zuerich.ch/dataset/vbz_fahrzeiten_ogd
  * 
- * @author Osmar
+ * @author Osmar.Silva
  * 
  */
 public class DenormalizedProcessRide {
 
-	public static void main(String[] args) {
+	static void runTypeModel(BigQueryEventsOptions options) {
 
-		PipelineOptions options = PipelineOptionsFactory.create();
-		options.setRunner(DirectRunner.class);
 		Pipeline p = Pipeline.create(options);
 
 		//Rides - Read CSV Files
 		PCollection<String> rides = 
 				p.apply("Read Rides files ", TextIO.read()
-						.from("D:\\Poc_Analytics\\_LOCAL\\ride_teste.csv"));
+						.from(options.getInputRidesFile()));
 
 		//BreakPoint - Read CSV Files
 		PCollection<String> breakPointStop = 
 				p.apply("Read BreakPoints file", TextIO.read()
-						.from("D:\\Poc_Analytics\\_LOCAL\\breakpoint_stop.csv"));
+						.from(options.getInputBreakpointStopFile()));
 
 		//Delays - Transform Cleanse Object KV >FROM<
 		PCollection<KV<Long, Ride>> rideFromKv = rides.apply("ParDo Rides Cleanse|Object|KV From", ParDo.of(new DoFn<String, KV<Long, Ride>>() {
@@ -145,9 +151,9 @@ public class DenormalizedProcessRide {
 				.apply(CoGroupByKey.create());
 
 		//Joined Lines to Object (Ride <- BreakpointStop-After)
-		PCollection<String> rideDenormalized = 
+		PCollection<TableRow> rideDenormalized = 
 				joinedCollectionRideAfter.apply("ParDo Ride/BreakPointsStops-After to Object", 
-						ParDo.of(new DoFn<KV<Long, CoGbkResult>, String>() {
+						ParDo.of(new DoFn<KV<Long, CoGbkResult>, TableRow>() {
 							private static final long serialVersionUID = 1L;
 							@ProcessElement
 							public void processElement(ProcessContext c) {
@@ -181,25 +187,82 @@ public class DenormalizedProcessRide {
 															"", "", "", "");
 										}
 										
-										List<String> cFrom = Arrays.asList(new String[]{rideBreakPointStop.getFromLatitude(), rideBreakPointStop.getFromLongitude()});
-										List<String> cTo = Arrays.asList(new String[]{rideBreakPointStop.getAfterLatitude(), rideBreakPointStop.getAfterLongitude()});
-										List<List<String>> geoCoordinates = new ArrayList<List<String>>();
+										BigDecimal latFrom = (rideBreakPointStop.getFromLatitude() != null && !rideBreakPointStop.getFromLatitude().equals("")) ?
+											new BigDecimal(rideBreakPointStop.getFromLatitude()) : new BigDecimal(0);
+										BigDecimal longFrom = (rideBreakPointStop.getFromLongitude() != null && !rideBreakPointStop.getFromLongitude().equals("")) ?
+											new BigDecimal(rideBreakPointStop.getFromLongitude()) : new BigDecimal(0);
+										List<BigDecimal> cFrom = Arrays.asList(new BigDecimal[]{latFrom, longFrom});
+											
+										BigDecimal latAfter = (rideBreakPointStop.getAfterLatitude() != null && !rideBreakPointStop.getAfterLatitude().equals("")) ?
+											new BigDecimal(rideBreakPointStop.getAfterLatitude()) : new BigDecimal(0);
+										BigDecimal longAfter = (rideBreakPointStop.getAfterLongitude() != null && !rideBreakPointStop.getAfterLongitude().equals("")) ?
+											new BigDecimal(rideBreakPointStop.getAfterLongitude()) : new BigDecimal(0);
+										List<BigDecimal> cTo = Arrays.asList(new BigDecimal[]{latAfter, longAfter});
+										
+										List<List<BigDecimal>> geoCoordinates = new ArrayList<List<BigDecimal>>();
 										geoCoordinates.add(cFrom);
 										geoCoordinates.add(cTo);
 										
-										rideBreakPointStop.setGeoJson(new GeoJsonMultiple("LineString", geoCoordinates));
-										c.output(rideBreakPointStop.toCsv()); 
+										GeoJsonMultiple geoJson = new GeoJsonMultiple();
+										geoJson.setGeometry("LineString", geoCoordinates);
+										
+										rideBreakPointStop.setGeoJson(geoJson);
+										c.output(rideBreakPointStop.toTableRow()); 
 									}
 								}
 							}
 						}));
 		//JOINS RIDE AND BREAKPOINTSTOP-AFTER >> END <<
 		
-		//Write CSV File
-		rideDenormalized.apply("Write CSV File", TextIO.write().to("denormalizedTable.csv").withoutSharding());
+		// Build the table schema for the output table.
+		List<TableFieldSchema> fields = new ArrayList<>();
+		fields.add(new TableFieldSchema().setName("rideId").setType("INTEGER"));
+		fields.add(new TableFieldSchema().setName("operationDate").setType("STRING"));
+		fields.add(new TableFieldSchema().setName("vehicleNumber").setType("INTEGER"));
+		fields.add(new TableFieldSchema().setName("courseNumber").setType("INTEGER"));
+		fields.add(new TableFieldSchema().setName("sequenceStop").setType("INTEGER"));
+		fields.add(new TableFieldSchema().setName("stopIdFrom").setType("INTEGER"));
+		fields.add(new TableFieldSchema().setName("stopCodeFrom").setType("STRING"));
+		fields.add(new TableFieldSchema().setName("dtStopFrom").setType("STRING"));
+		fields.add(new TableFieldSchema().setName("timeStopFromTarget").setType("INTEGER"));
+		fields.add(new TableFieldSchema().setName("timeStopFromReal").setType("INTEGER"));
+		fields.add(new TableFieldSchema().setName("stopIdAfter").setType("INTEGER"));
+		fields.add(new TableFieldSchema().setName("stopCodeAfter").setType("STRING"));
+		fields.add(new TableFieldSchema().setName("dtStopAfter").setType("STRING"));
+		fields.add(new TableFieldSchema().setName("timeStopAfterTarget").setType("INTEGER"));
+		fields.add(new TableFieldSchema().setName("timeStopAfterReal").setType("INTEGER"));
+		fields.add(new TableFieldSchema().setName("breakpointIdFrom").setType("INTEGER"));
+		fields.add(new TableFieldSchema().setName("fromLatitude").setType("STRING"));
+		fields.add(new TableFieldSchema().setName("fromLongitude").setType("STRING"));
+		fields.add(new TableFieldSchema().setName("fromStopShortCode").setType("STRING"));
+		fields.add(new TableFieldSchema().setName("fromStationDescription").setType("STRING"));
+		fields.add(new TableFieldSchema().setName("breakpointIdAfter").setType("INTEGER"));
+		fields.add(new TableFieldSchema().setName("afterLatitude").setType("STRING"));
+		fields.add(new TableFieldSchema().setName("afterLongitude").setType("STRING"));
+		fields.add(new TableFieldSchema().setName("afterStopShortCode").setType("STRING"));
+		fields.add(new TableFieldSchema().setName("afterStationDescription").setType("STRING"));
+		fields.add(new TableFieldSchema().setName("geojson").setType("STRING"));
+		TableSchema schema = new TableSchema().setFields(fields);
+		
+		TableReference tableRef = new TableReference();
+		tableRef.setDatasetId(options.getBigQueryDataSet());
+		tableRef.setTableId(options.getBigQueryTable());
 
+		rideDenormalized.apply(
+				BigQueryIO.writeTableRows()
+					.to(tableRef)
+					.withSchema(schema)
+					.withCreateDisposition(CreateDisposition.CREATE_IF_NEEDED));
+		
 		p.run().waitUntilFinish();
+		
+	}
+	
+	public static void main(String[] args) {
+		BigQueryEventsOptions options =
+				PipelineOptionsFactory.fromArgs(args).withValidation().as(BigQueryEventsOptions.class);
 
+		runTypeModel(options);
 	}
 
 }

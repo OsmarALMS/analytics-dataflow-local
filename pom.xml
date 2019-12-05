@@ -97,6 +97,12 @@
       <artifactId>beam-runners-direct-java</artifactId>
       <version>${beam.version}</version>
     </dependency>
+    
+<!--     <dependency> -->
+<!--       <groupId>org.apache.beam</groupId> -->
+<!--       <artifactId>beam-runners-google-cloud-dataflow-java</artifactId> -->
+<!--       <version>${beam.version}</version> -->
+<!--     </dependency> -->
 
     <!-- slf4j API frontend binding with JUL backend -->
     <dependency>
