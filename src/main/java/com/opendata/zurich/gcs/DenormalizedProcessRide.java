@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.apache.beam.runners.direct.DirectRunner;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.TextIO;
@@ -19,7 +18,8 @@ import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.TupleTag;
 import org.apache.beam.vendor.guava.v20_0.com.google.common.collect.Lists;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.opendata.zurich.model.BreakPointStop;
 import com.opendata.zurich.model.GeoJsonMultiple;
 import com.opendata.zurich.model.Ride;
@@ -34,6 +34,8 @@ import com.opendata.zurich.model.RideBreakPointStop;
  */
 public class DenormalizedProcessRide {
 
+	private static final Logger LOG = LoggerFactory.getLogger(DenormalizedProcessRide.class);
+	
 	public static void main(String[] args) {
 
 		PipelineOptions options = PipelineOptionsFactory.create();
@@ -48,7 +50,7 @@ public class DenormalizedProcessRide {
 		//BreakPoint - Read CSV Files
 		PCollection<String> breakPointStop = 
 				p.apply("Read BreakPoints file", TextIO.read()
-						.from("D:\\Poc_Analytics\\_LOCAL\\breakpoint_stop.csv"));
+						.from("D:\\Poc_Analytics\\_LOCAL\\haltepunkt-haltestelle.csv"));
 
 		//Delays - Transform Cleanse Object KV >FROM<
 		PCollection<KV<Long, Ride>> rideFromKv = rides.apply("ParDo Rides Cleanse|Object|KV From", ParDo.of(new DoFn<String, KV<Long, Ride>>() {
@@ -104,6 +106,9 @@ public class DenormalizedProcessRide {
 							@ProcessElement
 							public void processElement(ProcessContext c) {
 								KV<Long, CoGbkResult> e = c.element();
+								
+								LOG.info(" ->> KEY:"+e.getKey() + " - RIDE:"+Lists.newArrayList(e.getValue().getAll(rideFromTag)).size()+" - BPFROM:"+Lists.newArrayList(e.getValue().getAll(breakPointStopFromTag)).size());
+								
 								if(Lists.newArrayList(e.getValue().getAll(rideFromTag)).size() > 0) {
 									for(Ride ride : Lists.newArrayList(e.getValue().getAll(rideFromTag))) {
 										if(Lists.newArrayList(e.getValue().getAll(breakPointStopFromTag)).size() > 0) {

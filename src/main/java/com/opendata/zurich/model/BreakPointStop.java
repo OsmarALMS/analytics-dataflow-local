@@ -5,6 +5,8 @@ import java.io.Serializable;
 public class BreakPointStop implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	public BreakPointStop() {}
+	
 	public BreakPointStop(Long breakpointId, String latitude, String longitude, String stopShortCode,
 			String stationDescription) {
 		super();
